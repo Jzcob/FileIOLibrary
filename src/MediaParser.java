@@ -33,6 +33,10 @@ public class MediaParser {
         String prefix = "";
         if (mediaItem instanceof Book) {
             prefix = "BK-";
+        } else if (mediaItem instanceof Album) {
+            prefix = "AL-";
+        } else if (mediaItem instanceof Movie) {
+            prefix = "MV-";
         }
         int maxId = 0;
         if (file.exists()) {
@@ -70,6 +74,8 @@ public class MediaParser {
                         number++;
                         proposedID = parts[0].split("-")[0] + "-" + number;
                         return checkID(proposedID);
+                    } else {
+                        return proposedID;
                     }
                 }
             } catch (IOException e) {
@@ -84,18 +90,50 @@ public class MediaParser {
             if (mediaItem instanceof Book) {
                 Book book = (Book) mediaItem;
                 out.write(String.format("%s,%s,%s,%d,%d%n", generateID(book) , book.title, book.getAuthor(), mediaItem.year, book.getPageCount()));
+            } else if (mediaItem instanceof Movie) {
+                Movie movie = (Movie) mediaItem;
+                out.write(String.format("%s,%s,%s,%d,%d%n", generateID(movie) , movie.title, movie.getDirector(), mediaItem.year, movie.getRuntimeMinutes()));
+            } else if (mediaItem instanceof Album) {
+                Album album = (Album) mediaItem;
+                out.write(String.format("%s,%s,%s,%d,%d%n", generateID(album) , album.title, album.getAuthor(), mediaItem.year, album.getPageCount()));
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     public void saveCatalog() {
-
+        System.out.println("Catalog saved to " + csvfile + " and to " + binFile);
     }
 
     public void exportToBinary() {
-
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(bin))) {
+            String line;
+            BufferedReader in = new BufferedReader(new FileReader(csvfile));
+            while ((line = in.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length == 5) {
+                    String id = parts[0];
+                    String title = parts[1];
+                    String authorOrDirector = parts[2];
+                    int year = Integer.parseInt(parts[3]);
+                    int count = Integer.parseInt(parts[4]);
+                    if (id.startsWith("BK-")) {
+                        Book book = new Book(title, authorOrDirector, year, count);
+                        out.writeObject(book);
+                    } else if (id.startsWith("MV-")) {
+                        Movie movie = new Movie(title, authorOrDirector, year, count);
+                        out.writeObject(movie);
+                    } else if (id.startsWith("AL-")) {
+                        Album album = new Album(title, authorOrDirector, year, count);
+                        out.writeObject(album);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void listMediaItems() throws FileNotFoundException {

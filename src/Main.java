@@ -44,18 +44,24 @@ public class Main {
                         book.summary();
                         System.out.println("Book added successfully.\n\n\n\n");
                     } else if (mediaType.equalsIgnoreCase("Movie")) {
-                        System.out.println("Only adding books is implemented so far.");
+                        Movie movie = new Movie(title, author, year, count);
+                        mediaParser.addMediaItem(movie);
+                        movie.summary();
+                        System.out.println("Movie added successfully.\n\n\n\n");
                     } else if (mediaType.equalsIgnoreCase("Album")) {
-                        System.out.println("Only adding books is implemented so far.");
+                        Album album = new Album(title, author, year, count);
+                        mediaParser.addMediaItem(album);
+                        album.summary();
+                        System.out.println("Album added successfully.\n\n\n\n");
                     } else {
                         System.out.println("Invalid media type.");
                     }
                     break;
                 case 3:
-                    System.out.println("Saving the catalog to CSV is not yet implemented.");
+                    mediaParser.saveCatalog();
                     break;
                 case 4:
-                    System.out.println("Exporting catalog to a binary file is not yet implemented.");
+                    mediaParser.exportToBinary();
                     break;
                 case 5:
                     System.out.println("Removing a media item by ID is not yet implemented.");
